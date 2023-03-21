@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(Pangolin REQUIRED)
+find_package(Glog REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories("/usr/include/eigen3")
 include_directories(
     ${Pangolin_INCLUDE_DIRS}
+    ${GLOG_INCLUDE_DIRS}
 )
 
 LIST(APPEND LINK_LIBS
     ${Pangolin_LIBRARIES}
+    ${GLOG_LIBRARIES}
     pthread
 )
 

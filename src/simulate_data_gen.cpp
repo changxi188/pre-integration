@@ -54,7 +54,6 @@ std::vector<IMU> SimulateDataGen::AddNoise(const std::vector<IMU>& gt_imus)
         noised_imu.acc_bias = acc_bias;
 
         noised_imus.emplace_back(noised_imu);
-
     }
 
     return noised_imus;

@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 
+#include <glog/logging.h>
 #include <Eigen/Core>
 
 using Vector2d = Eigen::Vector2d;
