@@ -1,4 +1,5 @@
 #include "simulate_data_gen.h"
+#include <random>
 
 SimulateDataGen::SimulateDataGen()
 {
@@ -10,12 +11,53 @@ std::vector<IMU> SimulateDataGen::GenerateGroundTruth()
 
     for (double t = t_start_; t < t_end_; t += imu_timestep_)
     {
-        IMU imu = MotionModel(t);
+        IMU gt_imu = MotionModel(t);
 
-        imus.emplace_back(imu);
+        imus.emplace_back(gt_imu);
     }
 
     return imus;
+}
+
+std::vector<IMU> SimulateDataGen::AddNoise(const std::vector<IMU>& gt_imus)
+{
+    std::vector<IMU> noised_imus;
+    Vector3d acc_bias  = Vector3d::Zero();
+    Vector3d gyro_bias = Vector3d::Zero();
+
+    for (const auto& gt_imu : gt_imus)
+    {
+        IMU                              noised_imu = gt_imu;
+        std::random_device               rd;
+        std::default_random_engine       generator(rd());
+        std::normal_distribution<double> noise(0.0, 1.0);
+
+        Vector3d noise_gyro(noise(generator), noise(generator), noise(generator));
+        Matrix3d gyro_sqrt_cov = gyro_noise_sigma_ * Matrix3d::Identity();
+        noised_imu.angular_velocity =
+            gt_imu.angular_velocity + gyro_sqrt_cov * noise_gyro / sqrt(imu_timestep_) + gyro_bias;
+
+        Vector3d noise_acc(noise(generator), noise(generator), noise(generator));
+        Matrix3d acc_sqrt_cov = acc_noise_sigma_ * Matrix3d::Identity();
+        noised_imu.acceleration = gt_imu.acceleration + acc_sqrt_cov * noise_acc / sqrt(imu_timestep_) + acc_bias;
+
+        // gyro_bias update
+        Eigen::Vector3d noise_gyro_bias(noise(generator), noise(generator), noise(generator));
+        Matrix3d        gyro_bias_sqrt_cov = gyro_bias_sigma_ * Matrix3d::Identity();
+        gyro_bias += gyro_bias_sqrt_cov * sqrt(imu_timestep_) * noise_gyro_bias;
+        noised_imu.gyro_bias = gyro_bias;
+
+        // acc_bias update
+        Eigen::Vector3d noise_acc_bias(noise(generator), noise(generator), noise(generator));
+        Matrix3d        acc_bias_sqrt_cov = acc_bias_sigma_ * Matrix3d::Identity();
+        acc_bias += acc_bias_sqrt_cov * sqrt(imu_timestep_) * noise_acc_bias;
+        noised_imu.acc_bias = acc_bias;
+
+        noised_imus.emplace_back(noised_imu);
+
+    }
+
+    return noised_imus;
 }
 
 IMU SimulateDataGen::MotionModel(double t)

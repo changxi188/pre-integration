@@ -1,5 +1,6 @@
 #include <chrono>
 #include <thread>
+#include <vector>
 #include "common.h"
 #include "simulate_data_gen.h"
 #include "visualizer.h"
@@ -11,6 +12,8 @@ int main()
     SimulateDataGen simulate_data_gen;
     std::vector<IMU> ground_truth_imus = simulate_data_gen.GenerateGroundTruth();
     std::cout << "ground_truth_imus size : " << ground_truth_imus.size() << std::endl;
+
+    std::vector<IMU> noised_imus = simulate_data_gen.AddNoise(ground_truth_imus);
 
     Visualizer visualizer;
     for (size_t i = 0; i < ground_truth_imus.size(); ++i)

@@ -26,4 +26,6 @@ struct IMU
     Matrix3d Rwb;
     Vector3d twb;
     Vector3d imu_velocity;
+    Vector3d acc_bias;
+    Vector3d gyro_bias;
 };
