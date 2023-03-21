@@ -16,9 +16,9 @@ void Visualizer::run()
     glEnable(GL_DEPTH_TEST);
 
     // Define Projection and initial ModelView matrix
-    pangolin::OpenGlRenderState s_cam(pangolin::ProjectionMatrix(640, 480, 420, 420, 320, 320, 0.2, 100),
+    pangolin::OpenGlRenderState s_cam(pangolin::ProjectionMatrix(640, 480, 420, 420, 320, 320, 0.02, 1000),
                                       //对应的是gluLookAt,摄像机位置,参考点位置,up vector(上向量)
-                                      pangolin::ModelViewLookAt(20, 0, 30, 0, 0, 0, pangolin::AxisZ));
+                                      pangolin::ModelViewLookAt(80, 0, 100, 30, 0, 40, pangolin::AxisZ));
 
     // Create Interactive View in window
     pangolin::Handler3D handler(s_cam);
