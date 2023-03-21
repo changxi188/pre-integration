@@ -4,12 +4,14 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(Pangolin REQUIRED)
 find_package(Glog REQUIRED)
+find_package(Sophus REQUIRED)
 
 include_directories(
     "/usr/include/eigen3"
     ${PROJECT_SOURCE_DIR}/include
     ${Pangolin_INCLUDE_DIRS}
     ${GLOG_INCLUDE_DIRS}
+    ${Sophus_INCLUDE_DIRS}
 )
 
 LIST(APPEND LINK_LIBS
@@ -20,6 +22,7 @@ LIST(APPEND LINK_LIBS
 
 add_executable(main  
     main.cpp  
+    src/pre_integration.cpp
     src/simulate_data_gen.cpp 
     src/visualizer.cpp)
 TARGET_LINK_LIBRARIES (main ${LINK_LIBS})

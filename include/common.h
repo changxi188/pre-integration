@@ -10,6 +10,7 @@
 #include <glog/logging.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <sophus/se3.hpp>
 
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
@@ -30,4 +31,24 @@ struct IMU
     Vector3d velocity;
     Vector3d acc_bias;
     Vector3d gyro_bias;
+};
+
+struct ImuCalib
+{
+    // gyro and acc measurement noise covariance
+    Eigen::DiagonalMatrix<double, 6> ga_noise_cov;
+
+    // gyro and acc bias random walk noise covariance
+    Eigen::DiagonalMatrix<double, 6> ga_walk_noise_cov;
+
+    // extrinsic, camera to body transformation
+    Sophus::SE3d T_bc;
+
+    friend std::ostream& operator<<(std::ostream& os, const ImuCalib& imu_calib)
+    {
+        os << "\n gyro and acc measurement covariance : " << imu_calib.ga_noise_cov.diagonal().transpose()
+           << "\n gyro and acc bias covariance : " << imu_calib.ga_walk_noise_cov.diagonal().transpose() << std::endl;
+
+        return os;
+    }
 };

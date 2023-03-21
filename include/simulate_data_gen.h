@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "common.h"
 
 class SimulateDataGen
@@ -13,6 +12,8 @@ public:
     std::vector<IMU> AddNoise(const std::vector<IMU>& gt_imus);
 
     std::vector<IMU> TestIMU(const std::vector<IMU>& imus);
+
+    ImuCalib GetImuCalib();
 
 private:
     // euler2Rotation:   body frame to interitail frame
@@ -35,5 +36,8 @@ private:
 
     double gyro_noise_sigma_ = 0.015;  // rad/s * 1/sqrt(hz)
     double acc_noise_sigma_  = 0.019;  //　m/(s^2) * 1/sqrt(hz)
+
+    // transformation form camera to body
+    Sophus::SE3d T_bc_;
 };
 

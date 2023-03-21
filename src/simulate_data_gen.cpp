@@ -73,6 +73,23 @@ std::vector<IMU> SimulateDataGen::GenerateGroundTruth()
     return imus;
 }
 
+ImuCalib SimulateDataGen::GetImuCalib()
+{
+    ImuCalib imu_calib;
+
+    double gyro_cov = gyro_noise_sigma_ * gyro_noise_sigma_ / imu_timestep_;
+    double acc_cov  = acc_noise_sigma_ * acc_noise_sigma_ / imu_timestep_;
+    double gyro_bias_cov = gyro_bias_sigma_ * gyro_bias_sigma_ * imu_timestep_;
+    double acc_bias_cov  = acc_bias_sigma_ * acc_bias_sigma_ * imu_timestep_;
+
+    imu_calib.T_bc = T_bc_;
+    imu_calib.ga_noise_cov.diagonal() << gyro_cov, gyro_cov, gyro_cov, acc_cov, acc_cov, acc_cov;
+    imu_calib.ga_walk_noise_cov.diagonal() << gyro_bias_cov, gyro_bias_cov, gyro_bias_cov, acc_bias_cov, acc_bias_cov,
+        acc_bias_cov;
+
+    return imu_calib;
+}
+
 std::vector<IMU> SimulateDataGen::AddNoise(const std::vector<IMU>& gt_imus)
 {
     std::vector<IMU> noised_imus;
