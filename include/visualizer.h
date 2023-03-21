@@ -17,6 +17,10 @@ public:
 
     void SetGroundTruth(const std::vector<IMU>& imus);
 
+    void SetNoNoisedMediaIntergration(const std::vector<IMU>& imus);
+
+    void SetNoisedMediaIntergration(const std::vector<IMU>& imus);
+
     virtual ~Visualizer()
     {
         visualize_thread_.join();
@@ -31,10 +35,16 @@ private:
 
     void drawGTOdometry();
 
+    void drawNoNoisedMediaIntegration();
+
+    void drawNoisedMediaIntegration();
+
 private:
     std::thread visualize_thread_;
 
     std::mutex imu_data_mutex_;
     std::vector<IMU> ground_truth_imus_;
+    std::vector<IMU> no_noised_media_integration_;
+    std::vector<IMU> noised_media_integration_;
 };
 

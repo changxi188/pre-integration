@@ -9,6 +9,7 @@
 
 #include <glog/logging.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
@@ -26,7 +27,7 @@ struct IMU
 
     Matrix3d Rwb;
     Vector3d twb;
-    Vector3d imu_velocity;
+    Vector3d velocity;
     Vector3d acc_bias;
     Vector3d gyro_bias;
 };

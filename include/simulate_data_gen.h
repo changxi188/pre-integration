@@ -12,6 +12,8 @@ public:
 
     std::vector<IMU> AddNoise(const std::vector<IMU>& gt_imus);
 
+    std::vector<IMU> TestIMU(const std::vector<IMU>& imus);
+
 private:
     // euler2Rotation:   body frame to interitail frame
     Matrix3d euler2Rotation(Vector3d eulerAngles);

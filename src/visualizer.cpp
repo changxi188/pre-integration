@@ -37,6 +37,10 @@ void Visualizer::run()
 
         drawGTOdometry();
 
+        drawNoNoisedMediaIntegration();
+
+        drawNoisedMediaIntegration();
+
         // Swap frames and Process Events
         pangolin::FinishFrame();
     }
@@ -46,6 +50,18 @@ void Visualizer::SetGroundTruth(const std::vector<IMU>& imus)
 {
     std::unique_lock<std::mutex> lock(imu_data_mutex_);
     ground_truth_imus_ = imus;
+}
+
+void Visualizer::SetNoNoisedMediaIntergration(const std::vector<IMU>& imus)
+{
+    std::unique_lock<std::mutex> lock(imu_data_mutex_);
+    no_noised_media_integration_ = imus;
+}
+
+void Visualizer::SetNoisedMediaIntergration(const std::vector<IMU>& imus)
+{
+    std::unique_lock<std::mutex> lock(imu_data_mutex_);
+    noised_media_integration_ = imus;
 }
 
 void Visualizer::drawAxis()
@@ -65,6 +81,56 @@ void Visualizer::drawAxis()
     glVertex3f(0, 0, 2);
 
     glEnd();
+}
+
+void Visualizer::drawNoisedMediaIntegration()
+{
+    std::unique_lock<std::mutex> lock(imu_data_mutex_);
+    for (size_t i = 1; i < noised_media_integration_.size(); ++i)
+    {
+        IMU      imu_data_1 = noised_media_integration_.at(i - 1);
+        Vector3d twb_1      = imu_data_1.twb;
+        IMU      imu_data_2 = noised_media_integration_.at(i);
+        Vector3d twb_2      = imu_data_2.twb;
+
+        glLineWidth(2);
+        glBegin(GL_LINES);
+        glColor3f(0.0, 0.0, 1.0);
+        glVertex3d(twb_1.x(), twb_1.y(), twb_1.z());
+        glVertex3d(twb_2.x(), twb_2.y(), twb_2.z());
+        glEnd();
+    }
+
+    if (!noised_media_integration_.empty())
+    {
+        const auto imu_data = noised_media_integration_.back();
+        drawCamera(imu_data);
+    }
+}
+
+void Visualizer::drawNoNoisedMediaIntegration()
+{
+    std::unique_lock<std::mutex> lock(imu_data_mutex_);
+    for (size_t i = 1; i < no_noised_media_integration_.size(); ++i)
+    {
+        IMU      imu_data_1 = no_noised_media_integration_.at(i - 1);
+        Vector3d twb_1      = imu_data_1.twb;
+        IMU      imu_data_2 = no_noised_media_integration_.at(i);
+        Vector3d twb_2      = imu_data_2.twb;
+
+        glLineWidth(2);
+        glBegin(GL_LINES);
+        glColor3f(0.0, 1.0, 0);
+        glVertex3d(twb_1.x(), twb_1.y(), twb_1.z());
+        glVertex3d(twb_2.x(), twb_2.y(), twb_2.z());
+        glEnd();
+    }
+
+    if (!no_noised_media_integration_.empty())
+    {
+        const auto imu_data = no_noised_media_integration_.back();
+        drawCamera(imu_data);
+    }
 }
 
 void Visualizer::drawGTOdometry()

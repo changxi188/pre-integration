@@ -5,9 +5,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Pangolin REQUIRED)
 find_package(Glog REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories("/usr/include/eigen3")
 include_directories(
+    "/usr/include/eigen3"
+    ${PROJECT_SOURCE_DIR}/include
     ${Pangolin_INCLUDE_DIRS}
     ${GLOG_INCLUDE_DIRS}
 )

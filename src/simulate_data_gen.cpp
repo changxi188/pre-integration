@@ -1,8 +1,62 @@
-#include "simulate_data_gen.h"
 #include <random>
+#include <vector>
+
+#include "simulate_data_gen.h"
 
 SimulateDataGen::SimulateDataGen()
 {
+}
+
+std::vector<IMU> SimulateDataGen::TestIMU(const std::vector<IMU>& imus)
+{
+    std::vector<IMU> media_integration_result;
+
+    IMU first_imu = imus.front();
+
+    double             dt  = imu_timestep_;
+    // position :    from  imu measurements
+    Vector3d           Pwb = first_imu.twb;
+    // quaterniond:  from imu measurements
+    Eigen::Quaterniond Qwb(first_imu.Rwb);
+    // velocity  :   from imu measurements
+    Eigen::Vector3d Vw = first_imu.velocity;
+    // ENU frame
+    Eigen::Vector3d gw(0, 0, -9.81);
+
+    for (int i = 1; i < imus.size(); ++i)
+    {
+        IMU last_imupose = imus[i - 1];
+        IMU curr_imupose = imus[i];
+
+        IMU integral_result;
+
+        // delta_q = [1 , 1/2 * thetax , 1/2 * theta_y, 1/2 * theta_z]
+        Vector3d           last_ang_vel = last_imupose.angular_velocity;
+        Vector3d           cur_ang_vel  = curr_imupose.angular_velocity;
+        Vector3d           dtheta_half  = (last_ang_vel + cur_ang_vel) * dt / 4.0;
+        Eigen::Quaterniond dq;
+        dq.w() = 1;
+        dq.x() = dtheta_half.x();
+        dq.y() = dtheta_half.y();
+        dq.z() = dtheta_half.z();
+        dq.normalize();
+
+        /// 中值积分
+        // aw = Rwb * ( acc_body - acc_bias ) + gw
+        Vector3d last_acc_w        = Qwb * (last_imupose.acceleration) + gw;
+        Qwb                        = Qwb * dq;
+        Vector3d curr_acc_w        = Qwb * (curr_imupose.acceleration) + gw;
+        Vector3d acc_w             = (last_acc_w + curr_acc_w) / 2.0;
+        Pwb                        = Pwb + Vw * dt + 0.5 * dt * dt * acc_w;
+        Vw                         = Vw + acc_w * dt;
+
+        integral_result.Rwb = Qwb.toRotationMatrix();
+        integral_result.twb = Pwb;
+
+        media_integration_result.emplace_back(integral_result);
+    }
+
+    return media_integration_result;
 }
 
 std::vector<IMU> SimulateDataGen::GenerateGroundTruth()
@@ -110,10 +164,10 @@ IMU SimulateDataGen::MotionModel(double t)
 
     data.angular_velocity = imu_gyro;
     data.acceleration     = imu_acc;
-    data.Rwb          = Rwb;
-    data.twb          = position;
-    data.imu_velocity = dp;
-    data.timestamp    = t;
+    data.Rwb              = Rwb;
+    data.twb              = position;
+    data.velocity         = dp;
+    data.timestamp        = t;
     return data;
 }
 

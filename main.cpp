@@ -21,17 +21,39 @@ int main(int argc, char** argv)
 
     SimulateDataGen simulate_data_gen;
 
+    // step1: generate simulate data
     std::vector<IMU> ground_truth_imus = simulate_data_gen.GenerateGroundTruth();
+    std::vector<IMU> noised_imus       = simulate_data_gen.AddNoise(ground_truth_imus);
     LOG(INFO) << "ground_truth_imus size : " << ground_truth_imus.size();
-
-    std::vector<IMU> noised_imus = simulate_data_gen.AddNoise(ground_truth_imus);
     LOG(INFO) << "noised_imus size : " << ground_truth_imus.size();
+
+    // step2: test simulate data with median integration
+    std::vector<IMU> no_noised_media_integration = simulate_data_gen.TestIMU(ground_truth_imus);
+    std::vector<IMU> noised_media_integration    = simulate_data_gen.TestIMU(noised_imus);
 
     Visualizer visualizer;
     for (size_t i = 0; i < ground_truth_imus.size(); ++i)
     {
         std::vector<IMU> ground_truth_imuss(ground_truth_imus.begin(), ground_truth_imus.begin() + i);
         visualizer.SetGroundTruth(ground_truth_imuss);
+
+        std::this_thread::sleep_for(std::chrono::microseconds(500));
+    }
+
+    for (size_t i = 0; i < no_noised_media_integration.size(); ++i)
+    {
+        std::vector<IMU> no_noised_media_integrations(no_noised_media_integration.begin(),
+                                                      no_noised_media_integration.begin() + i);
+        visualizer.SetNoNoisedMediaIntergration(no_noised_media_integrations);
+
+        std::this_thread::sleep_for(std::chrono::microseconds(500));
+    }
+
+    for (size_t i = 0; i < noised_media_integration.size(); ++i)
+    {
+        std::vector<IMU> noised_media_integrations(noised_media_integration.begin(),
+                                                   noised_media_integration.begin() + i);
+        visualizer.SetNoisedMediaIntergration(noised_media_integrations);
 
         std::this_thread::sleep_for(std::chrono::microseconds(500));
     }
