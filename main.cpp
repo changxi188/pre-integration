@@ -34,6 +34,10 @@ int main(int argc, char** argv)
     // step3: pre-integration
     ImuCalib imu_calib = simulate_data_gen.GetImuCalib();
     LOG(INFO) << "imu_ calib : " << imu_calib;
+    Vector3d       gyro_bias = Vector3d::Zero();
+    Vector3d       acc_bias  = Vector3d::Zero();
+    PreIntegration pre_integration(gyro_bias, acc_bias, imu_calib);
+    LOG(INFO) << pre_integration;
 
     // step3.1: pre-integration measurement update
 
