@@ -22,6 +22,7 @@ LIST(APPEND LINK_LIBS
 
 add_executable(main  
     main.cpp  
+    src/common.cpp
     src/pre_integration.cpp
     src/simulate_data_gen.cpp 
     src/visualizer.cpp)

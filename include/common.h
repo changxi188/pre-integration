@@ -10,6 +10,7 @@
 #include <glog/logging.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/Jacobi>
 #include <sophus/se3.hpp>
 
 using Vector2d = Eigen::Vector2d;
@@ -22,9 +23,12 @@ using MatrixXd = Eigen::MatrixXd;
 struct IMU
 {
     double timestamp;
-    // x acc. y acc, z acc
-    Vector3d acceleration;
+
+    // x_ang_vel, y_ang_vel, z_ang_vel
     Vector3d angular_velocity;
+
+    // x_acc. y_acc, z_acc
+    Vector3d acceleration;
 
     Matrix3d Rwb;
     Vector3d twb;
@@ -46,9 +50,11 @@ struct ImuCalib
 
     friend std::ostream& operator<<(std::ostream& os, const ImuCalib& imu_calib)
     {
-        os << "\n gyro and acc measurement covariance : " << imu_calib.ga_noise_cov.diagonal().transpose()
-           << "\n gyro and acc bias covariance : " << imu_calib.ga_walk_noise_cov.diagonal().transpose() << std::endl;
+        os << "\ngyro and acc measurement covariance : " << imu_calib.ga_noise_cov.diagonal().transpose()
+           << "\ngyro and acc bias covariance : " << imu_calib.ga_walk_noise_cov.diagonal().transpose() << std::endl;
 
         return os;
     }
 };
+
+Matrix3d NormalizeRotation(const Matrix3d& R);

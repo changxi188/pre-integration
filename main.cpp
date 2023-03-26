@@ -34,12 +34,26 @@ int main(int argc, char** argv)
     // step3: pre-integration
     ImuCalib imu_calib = simulate_data_gen.GetImuCalib();
     LOG(INFO) << "imu_ calib : " << imu_calib;
+
+    // step3.1: construct pre-integration
     Vector3d       gyro_bias = Vector3d::Zero();
     Vector3d       acc_bias  = Vector3d::Zero();
     PreIntegration pre_integration(gyro_bias, acc_bias, imu_calib);
     LOG(INFO) << pre_integration;
 
-    // step3.1: pre-integration measurement update
+    // step3.2: integrate measurements and update pre-integration covariance
+
+    for (size_t i = 0; i < ground_truth_imus.size() - 1; ++i)
+    {
+        IMU cur_imu = ground_truth_imus.at(i);
+        IMU next_imu = ground_truth_imus.at(i + 1);
+
+        double   dt               = next_imu.timestamp - cur_imu.timestamp;
+        Vector3d angular_velocity = cur_imu.angular_velocity;
+        Vector3d acceleration     = cur_imu.acceleration;
+
+        pre_integration.IntegrateNewMeasurement(angular_velocity, acceleration, dt);
+    }
 
     /*
     Visualizer visualizer;
